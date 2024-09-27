@@ -9,6 +9,7 @@ import { ActivityIndicator, FlatList, Image, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocationStore } from '@/store';
+import { router } from 'expo-router';
 
 const recentRides = [
   {
@@ -125,7 +126,11 @@ export default function Page() {
   const [hasPermissions, setHasPermissions] = useState(false)
 
   const handleSignOut = () => { };
-  const handleDestinationPress = () => { };
+  const handleDestinationPress = (location: { latitude: number, longitude: number, address: string }) => {
+    setDestinationLocation(location)
+
+    router.push('/(root)/find-ride')
+  };
 
   useEffect(() => {
     const requestLocation = async () => {
