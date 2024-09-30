@@ -1,6 +1,7 @@
-import * as SecureStore from 'expo-secure-store';
-import * as Linking from 'expo-linking'
-import { fetchAPI } from './fetch';
+import * as Linking from "expo-linking";
+import * as SecureStore from "expo-secure-store";
+
+import { fetchAPI } from "@/lib/fetch";
 
 export const tokenCache = {
   async getToken(key: string) {
@@ -9,11 +10,11 @@ export const tokenCache = {
       if (item) {
         console.log(`${key} was used 🔐 \n`);
       } else {
-        console.log('No values stored under key: ' + key);
+        console.log("No values stored under key: " + key);
       }
       return item;
     } catch (error) {
-      console.error('SecureStore get item error: ', error);
+      console.error("SecureStore get item error: ", error);
       await SecureStore.deleteItemAsync(key);
       return null;
     }
@@ -29,45 +30,43 @@ export const tokenCache = {
 
 export const googleOAuth = async (startOAuthFlow: any) => {
   try {
-    const { createdSessionId, signUp, setActive } = await startOAuthFlow({
-      redirectUrl: Linking.createURL('/(root)/(tabs)/home', { scheme: 'myapp' }),
-    })
+    const { createdSessionId, setActive, signUp } = await startOAuthFlow({
+      redirectUrl: Linking.createURL("/(root)/(tabs)/home"),
+    });
 
     if (createdSessionId) {
       if (setActive) {
-        await setActive!({ session: createdSessionId })
+        await setActive({ session: createdSessionId });
 
         if (signUp.createdUserId) {
-          await fetchAPI('/(api)/user', {
+          await fetchAPI("/(api)/user", {
             method: "POST",
             body: JSON.stringify({
               name: `${signUp.firstName} ${signUp.lastName}`,
               email: signUp.emailAddress,
-              clerkId: signUp.createdUserId
-            })
-          })
+              clerkId: signUp.createdUserId,
+            }),
+          });
         }
-        
+
         return {
           success: true,
           code: "success",
-          message: "You have successfully authenticated"
-        }
+          message: "You have successfully signed in with Google",
+        };
       }
     }
 
     return {
       success: false,
-      code: "success",
-      message: "An Error occured",
-    }
-  } catch (error: any) {
-    console.log(error);
+      message: "An error occurred while signing in with Google",
+    };
+  } catch (err: any) {
+    console.error(err);
     return {
       success: false,
-      code: error.code,
-      message: error?.errors[0]?.longMessage,
-    }
-    
+      code: err.code,
+      message: err?.errors[0]?.longMessage,
+    };
   }
-}
+};
