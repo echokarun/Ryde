@@ -34,29 +34,28 @@ export default function Page() {
 
   useEffect(() => {
     const requestLocation = async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync()
+      let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        setHasPermissions(false)
-        return
+        setHasPermissions(false);
+        return;
       }
-      let location = await Location.getCurrentPositionAsync()
 
+      let location = await Location.getCurrentPositionAsync();
       const address = await Location.reverseGeocodeAsync({
-        latitude: location.coords?.latitude!,
-        longitude: location.coords?.longitude!,
-      })
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
 
       setUserLocation({
-        // latitude: location.coords.latitude,
-        // longitude: location.coords.longitude,
-        latitude: 37.78825,
-        longitude: -122.4324,
-        address: `${address[0].name}, ${address[0].region}`
-      })
-    }
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        address: `${address[0]?.name || "Unknown"}, ${address[0]?.region || "Unknown"}`,
+      });
+    };
 
-    requestLocation()
-  }, [])
+    requestLocation();
+  }, []);
+
 
   return (
     <SafeAreaView className=" bg-general-500">
